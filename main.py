@@ -8,8 +8,13 @@ import uvicorn
 from youtube_api import YoutubeAPIService
 from auth import get_credentials
 from storage import upload_to_bucket
+from celery_app import run_postgres
 
 app = FastAPI()
+
+@app.on_event("startup")
+async def startup_event():
+    run_postgres.delay()
 
 @app.get("/trigger-youtube-api-job")
 async def retrieve_new_video_data():

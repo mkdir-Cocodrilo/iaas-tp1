@@ -1,14 +1,10 @@
 # Utiliser l'image officielle de Python
 FROM python:3.9-slim
 
-# Installer les dépendances système nécessaires
+# Installer les dépendances système
 RUN apt-get update && apt-get install -y \
-    cron \
-    curl \
     libpq-dev \
     && apt-get clean
-
-ENV TZ=Europe/Paris
 
 # Copier les fichiers de l'application
 COPY . /app
@@ -17,5 +13,5 @@ WORKDIR /app
 # Installer les dépendances Python
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Démarrer cron et l'application FastAPI
-CMD ["sh", "-c", "uvicorn main:app --host 0.0.0.0 --port 8080"]
+# Commande d'entrée par défaut
+CMD ["python", "postgres.py"]
