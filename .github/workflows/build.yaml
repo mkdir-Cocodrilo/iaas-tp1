@@ -1,4 +1,4 @@
-name: Build and Deploy Data Retrieval Service to Cloud Run
+name: Build and Deploy FastAPI Service to Cloud Run
 on:
   push:
     branches:
@@ -50,3 +50,5 @@ jobs:
           service: ${{ env.SERVICE }}
           region: ${{ env.REGION }}
           image: ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE }}:${{ github.sha }}
+          env_vars: |
+            DATABASE_URL=projects/${{ secrets.GCP_PROJECT }}/secrets/DATABASE_URL/versions/latest
