@@ -49,10 +49,8 @@ jobs:
           gcloud run jobs create ${{ env.JOB }} \
             --image=${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.JOB }}:${{ github.sha }} \
             --region=${{ env.REGION }} \
-            --vpc-connector=iaas-tp1 \
             --set-env-vars=DATABASE_URL=${{ secrets.DATABASE_URL }} || \
           gcloud run jobs update ${{ env.JOB }} \
             --image=${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.JOB }}:${{ github.sha }} \
             --region=${{ env.REGION }} \
-            --vpc-connector=iaas-tp1 \
             --set-env-vars=DATABASE_URL=${{ secrets.DATABASE_URL }}
