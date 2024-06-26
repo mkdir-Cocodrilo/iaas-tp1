@@ -38,15 +38,10 @@ jobs:
           password: '${{ steps.auth.outputs.access_token }}'
           registry: '${{ env.GAR_LOCATION }}-docker.pkg.dev'
 
-      - name: Build FastAPI Service
-        run: docker-compose -f docker-compose.prod.yml build app
-
-      - name: Tag and Push FastAPI Service
+      - name: Build and Push FastAPI Service
         run: |
-          IMAGE_ID=$(docker-compose -f docker-compose.prod.yml images -q app)
-          echo "FastAPI Service Image ID: $IMAGE_ID"
-          docker tag $IMAGE_ID "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE }}:${{ github.sha }}"
-          docker push "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE }}:${{ github.sha }}"
+          docker-compose -f docker-compose.prod.yml build app
+          docker-compose -f docker-compose.prod.yml push app
 
       - name: Deploy FastAPI Service to Cloud Run
         id: deploy
