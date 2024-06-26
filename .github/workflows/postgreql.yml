@@ -9,7 +9,7 @@ env:
   GAR_LOCATION: europe-west9
   REPOSITORY: iaas-tp1-register
   SERVICE: youtube-data-import-service
-  REGION: europe-west9  
+  REGION: europe-west9
 
 jobs:
   deploy:
@@ -27,7 +27,7 @@ jobs:
         uses: 'google-github-actions/auth@v2'
         with:
           token_format: 'access_token'
-          workload_identity_provider: '${{ secrets.WIF_PROVIDER }}' 
+          workload_identity_provider: '${{ secrets.WIF_PROVIDER }}'
           service_account: '${{ secrets.WIF_SERVICE_ACCOUNT }}'
 
       - name: Docker Auth
