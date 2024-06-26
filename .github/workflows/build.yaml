@@ -1,4 +1,4 @@
-name: Build and Deploy to Cloud Run
+name: Build and Deploy FastAPI Service
 on:
   push:
     branches:
@@ -8,8 +8,7 @@ env:
   PROJECT_ID: iaas-tp1-421811
   GAR_LOCATION: europe-west9
   REPOSITORY: iaas-tp1-register
-  FASTAPI_SERVICE: youtube-api-job-service
-  POSTGRES_JOB_SERVICE: postgres-job-service
+  SERVICE: youtube-api-job-service
   REGION: europe-west9  
 
 jobs:
@@ -46,35 +45,15 @@ jobs:
         run: |
           IMAGE_ID=$(docker-compose -f docker-compose.prod.yml images -q app)
           echo "FastAPI Service Image ID: $IMAGE_ID"
-          docker tag $IMAGE_ID "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.FASTAPI_SERVICE }}:${{ github.sha }}"
-          docker push "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.FASTAPI_SERVICE }}:${{ github.sha }}"
-
-      - name: Build PostgreSQL Job
-        run: docker-compose -f docker-compose.prod.yml build job
-
-      - name: Tag and Push PostgreSQL Job
-        run: |
-          IMAGE_ID=$(docker-compose -f docker-compose.prod.yml images -q job)
-          echo "PostgreSQL Job Image ID: $IMAGE_ID"
-          docker tag $IMAGE_ID "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.POSTGRES_JOB_SERVICE }}:${{ github.sha }}"
-          docker push "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.POSTGRES_JOB_SERVICE }}:${{ github.sha }}"
+          docker tag $IMAGE_ID "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE }}:${{ github.sha }}"
+          docker push "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE }}:${{ github.sha }}"
 
       - name: Deploy FastAPI Service to Cloud Run
-        id: deploy_fastapi
+        id: deploy
         uses: 'google-github-actions/deploy-cloudrun@v2'
         with:
-          service: ${{ env.FASTAPI_SERVICE }}
+          service: ${{ env.SERVICE }}
           region: ${{ env.REGION }}
-          image: ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.FASTAPI_SERVICE }}:${{ github.sha }}
-          env_vars: |
-            DATABASE_URL=projects/${{ secrets.GCP_PROJECT }}/secrets/DATABASE_URL/versions/latest
-
-      - name: Deploy PostgreSQL Job to Cloud Run
-        id: deploy_postgres_job
-        uses: 'google-github-actions/deploy-cloudrun@v2'
-        with:
-          service: ${{ env.POSTGRES_JOB_SERVICE }}
-          region: ${{ env.REGION }}
-          image: ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.POSTGRES_JOB_SERVICE }}:${{ github.sha }}
+          image: ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE }}:${{ github.sha }}
           env_vars: |
             DATABASE_URL=projects/${{ secrets.GCP_PROJECT }}/secrets/DATABASE_URL/versions/latest
