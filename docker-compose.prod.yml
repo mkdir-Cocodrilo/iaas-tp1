@@ -26,3 +26,18 @@ services:
       - "8080:8080"
     volumes:
       - .:/app
+
+  job:
+    build:
+      context: .
+      dockerfile: Dockerfile.db
+    container_name: postgres_job
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: postgresql://coco:password@db:5432/test
+    volumes:
+      - .:/app
+
+volumes:
+  db_data:
