@@ -39,16 +39,28 @@ jobs:
           password: '${{ steps.auth.outputs.access_token }}'
           registry: '${{ env.GAR_LOCATION }}-docker.pkg.dev'
 
-      - name: Build and Push FastAPI Service
+      - name: Build and Tag FastAPI Service
         run: |-
           docker-compose -f docker-compose.prod.yml build app
-          docker tag $(docker-compose -f docker-compose.prod.yml images -q app) "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.FASTAPI_SERVICE }}:${{ github.sha }}"
+          IMAGE_ID=$(docker-compose -f docker-compose.prod.yml images -q app)
+          docker tag $IMAGE_ID "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.FASTAPI_SERVICE }}:${{ github.sha }}"
+          echo $IMAGE_ID
+
+      - name: Push FastAPI Service
+        run: |-
+          IMAGE_ID=$(docker-compose -f docker-compose.prod.yml images -q app)
           docker push "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.FASTAPI_SERVICE }}:${{ github.sha }}"
 
-      - name: Build and Push PostgreSQL Job
+      - name: Build and Tag PostgreSQL Job
         run: |-
           docker-compose -f docker-compose.prod.yml build job
-          docker tag $(docker-compose -f docker-compose.prod.yml images -q job) "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.POSTGRES_JOB_SERVICE }}:${{ github.sha }}"
+          IMAGE_ID=$(docker-compose -f docker-compose.prod.yml images -q job)
+          docker tag $IMAGE_ID "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.POSTGRES_JOB_SERVICE }}:${{ github.sha }}"
+          echo $IMAGE_ID
+
+      - name: Push PostgreSQL Job
+        run: |-
+          IMAGE_ID=$(docker-compose -f docker-compose.prod.yml images -q job)
           docker push "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.POSTGRES_JOB_SERVICE }}:${{ github.sha }}"
 
       - name: Deploy FastAPI Service to Cloud Run
