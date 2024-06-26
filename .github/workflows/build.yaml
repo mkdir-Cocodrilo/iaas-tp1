@@ -1,4 +1,4 @@
-name: Build and Deploy to Cloud Run
+name: Build and Deploy API to Cloud Run
 on:
   push:
     branches:
@@ -40,28 +40,7 @@ jobs:
 
       - name: Build and Push Container
         run: |-
-          echo "Building Docker image..."
-          docker-compose -f docker-compose.prod.yml build app
-          BUILD_EXIT_CODE=$?
-          if [ $BUILD_EXIT_CODE -ne 0 ]; then
-            echo "Docker build failed. Exiting."
-            exit $BUILD_EXIT_CODE
-          fi
-          echo "Docker build succeeded."
-
-          echo "Listing all Docker images..."
-          docker images
-
-          echo "Retrieving image ID..."
-          IMAGE_ID=$(docker images --format '{{.ID}}' --filter "reference=iaas-tp1_app:latest")
-          echo "FastAPI Service Image ID: $IMAGE_ID"
-          if [ -z "$IMAGE_ID" ]; then
-            echo "Error: IMAGE_ID is empty. Exiting."
-            exit 1
-          fi
-
-          echo "Tagging Docker image..."
-          docker tag $IMAGE_ID "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE }}:${{ github.sha }}"
+          docker build -t "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE }}:${{ github.sha }}" -f Dockerfile ./
           docker push "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE }}:${{ github.sha }}"
 
       - name: Deploy to Cloud Run
